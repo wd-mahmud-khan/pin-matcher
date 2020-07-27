@@ -12,13 +12,13 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="pin-generator half-width">
-                    <input class="form-control" type="text">
+                    <input id="showGeneratedPin" class="form-control" type="text">
                     <button class="generate-btn">Generate Pin</button>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="input-section half-width">
-                    <input class="form-control" type="text">
+                    <input id="showClickedNumber" class="form-control" type="text">
                     <div class="numbers">
                         <div class="calc-body">
                             <div class="calc-button-row">
@@ -37,9 +37,9 @@
                               <div class="button">3</div>
                             </div>
                             <div class="calc-button-row">
-                                <div class="button"><</div>
+                                <div id="deleteSingleInput" ><</div>
                                 <div class="button">0</div>
-                                <div class="button">C</div>
+                                <div id="clearAllInputs">C</div>
                             </div>
                             <div>
                                 <button type="submit" class="submit-btn">Submit</button>
@@ -50,9 +50,63 @@
             </div>
         </div>
         <div class="notify-section">
-            <p class="notify">❌ Pin Didn't Match, Please try again</p>
-            <p class="notify">✅ Pin Matched... Secret door is opening for you</p>
+            <p id="error-notify" class="notify">❌ Pin Didn't Match, Please try again</p>
+            <p id="success-notify" class="notify">✅ Pin Matched... Secret door is opening for you</p>
         </div>
     </div>
+
+
+
+    <script>
+        // Generate PIN
+        const generateBtn = document.querySelector('.generate-btn');
+        let showGeneratedPin = document.getElementById('showGeneratedPin');
+        generateBtn.addEventListener('click', ()=> {
+            const randNumber = Math.floor(Math.random() * 9999);
+            showGeneratedPin.value = randNumber;
+        });
+        
+        // Display Clicked Numbers
+        const buttons = document.querySelectorAll('.button')
+        const showClickedNumber= document.getElementById('showClickedNumber')
+        let numbersCollection = []
+        buttons.forEach(button => {
+            button.addEventListener('click', e => {
+                const getClickedNumber =  e.target.innerText
+                numbersCollection.push(getClickedNumber)                
+                showClickedNumber.value = numbersCollection.join('')
+            })
+        });
+
+
+        // Submit numbers to check equality
+        const submitBtn = document.querySelector('.submit-btn')
+        const successNotify = document.getElementById('success-notify');
+        const errorNotify = document.getElementById('error-notify');
+
+        submitBtn.addEventListener('click', ()=> {
+            if(showGeneratedPin.value === showClickedNumber.value){
+                console.log(true)
+                successNotify.style.display = 'block'
+            } else {
+                errorNotify.style.display = 'block'
+            }
+        });
+
+        // Delete last input number
+        const deleteSingleCharacter = document.getElementById('deleteSingleInput')
+        deleteSingleCharacter.addEventListener('click', () => {
+            numbersCollection.pop();
+            showClickedNumber.value = numbersCollection.join('')
+        });
+        
+        // Clear all input numbers
+        const clearAllInputs = document.getElementById('clearAllInputs');
+        clearAllInputs.addEventListener('click', () => {
+            numbersCollection = []
+            showClickedNumber.value = numbersCollection.join('')    
+        });
+
+    </script>
 </body>
 </html>
