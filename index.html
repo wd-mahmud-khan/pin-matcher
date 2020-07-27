@@ -53,6 +53,14 @@
             <p id="error-notify" class="notify">❌ Pin Didn't Match, Please try again</p>
             <p id="success-notify" class="notify">✅ Pin Matched... Secret door is opening for you</p>
         </div>
+
+        <!-- audio for success and error -->
+        <audio id="successAudio">
+            <source src="audio/success.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="errorAudio">
+            <source src="audio/error.mp3" type="audio/mpeg">
+        </audio>
     </div>
 
 
@@ -84,12 +92,16 @@
         const successNotify = document.getElementById('success-notify');
         const errorNotify = document.getElementById('error-notify');
 
+        const successAudio = document.getElementById('successAudio')
+        const errorAudio = document.getElementById('errorAudio')
+
         submitBtn.addEventListener('click', ()=> {
             if(showGeneratedPin.value === showClickedNumber.value){
-                console.log(true)
                 successNotify.style.display = 'block'
+                successAudio.play()
             } else {
                 errorNotify.style.display = 'block'
+                errorAudio.play()
             }
         });
 
