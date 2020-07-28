@@ -10,8 +10,12 @@ body {
 }
 
 .form-control:disabled, .form-control[readonly] {
-    background-color: #1e85f5 !important;
+    background-color: slategray;
     opacity: 1;
+    font-weight: bold;
+    letter-spacing: 4px;
+    text-align: center;
+    font-size: 20px;
 }
 
 .half-width {
