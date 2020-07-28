@@ -8,8 +8,10 @@ body {
 .container {
   margin-top: 30px;
 }
-input:disabled{
-  color: black;
+
+.form-control:disabled, .form-control[readonly] {
+    background-color: #1e85f5 !important;
+    opacity: 1;
 }
 
 .half-width {
