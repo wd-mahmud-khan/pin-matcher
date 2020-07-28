@@ -22,41 +22,44 @@
                     <div class="numbers">
                         <div class="calc-body">
                             <div class="calc-button-row">
-                              <div class="button">7</div>
-                              <div class="button">8</div>
-                              <div class="button">9</div>
+                              <div data-key="7" class="button">7</div>
+                              <div data-key="8" class="button">8</div>
+                              <div data-key="9" class="button">9</div>
                             </div>
                             <div class="calc-button-row">
-                              <div class="button">4</div>
-                              <div class="button">5</div>
-                              <div class="button">6</div>
+                              <div data-key="4" class="button">4</div>
+                              <div data-key="5" class="button">5</div>
+                              <div data-key="6" class="button">6</div>
                             </div>
                             <div class="calc-button-row">
-                              <div class="button">1</div>
-                              <div class="button">2</div>
-                              <div class="button">3</div>
+                              <div data-key="1" class="button">1</div>
+                              <div data-key="2" class="button">2</div>
+                              <div data-key="3" class="button">3</div>
                             </div>
                             <div class="calc-button-row">
                                 <div id="deleteSingleInput" ><</div>
-                                <div class="button">0</div>
+                                <div data-key="0" class="button">0</div>
                                 <div id="clearAllInputs">C</div>
                             </div>
                             <div>
                                 <button type="submit" class="submit-btn">Submit</button>
-                                <p class="action-left">3 try left</p>
+                                <p class="action-left"> <span id="try-count">3</span>  try left</p>
                             </div>
                     </div>
                 </div>
             </div>
         </div>
+        
         <div class="notify-section">
             <p id="error-notify" class="notify">❌ Pin Didn't Match, Please try again</p>
             <p id="success-notify" class="notify">✅ Pin Matched... Secret door is opening for you</p>
         </div>
 
         <!-- audio for success and error -->
+        <audio id="beepAudio">
+            <source src="audio/beep.mp3" type="audio/mpeg">
+        </audio>
         <audio id="successAudio">
-            
             <source src="audio/success.mp3" type="audio/mpeg">
         </audio>
         <audio id="errorAudio">
@@ -64,62 +67,138 @@
         </audio>
     </div>
 
-
-
     <script>
-        // Generate PIN
-        const generateBtn = document.querySelector('.generate-btn');
-        let showGeneratedPin = document.getElementById('showGeneratedPin');
-        generateBtn.addEventListener('click', ()=> {
-            const randNumber = Math.floor(Math.random() * 9999);
-            showGeneratedPin.value = randNumber;
-        });
-        
-        // Display Clicked Numbers
-        const buttons = document.querySelectorAll('.button')
-        const showClickedNumber= document.getElementById('showClickedNumber')
-        let numbersCollection = []
-        buttons.forEach(button => {
-            button.addEventListener('click', e => {
-                const getClickedNumber =  e.target.innerText
-                numbersCollection.push(getClickedNumber)                
-                showClickedNumber.value = numbersCollection.join('')
-            })
-        });
-
-
-        // Submit numbers to check equality
-        const submitBtn = document.querySelector('.submit-btn')
         const successNotify = document.getElementById('success-notify');
         const errorNotify = document.getElementById('error-notify');
+        const submitBtn = document.querySelector('.submit-btn');
 
         const successAudio = document.getElementById('successAudio')
         const errorAudio = document.getElementById('errorAudio')
+        const beepAudio = document.getElementById('beepAudio')
 
-        submitBtn.addEventListener('click', ()=> {
+        const showInputNumber= document.getElementById('showClickedNumber');
+        let numbersCollection = []
+
+        // Generate PIN function
+        function generatePin(){
+            let showGeneratedPin = document.getElementById('showGeneratedPin');
+            const randNumber = Math.ceil((Math.random() * 9999))
+            showGeneratedPin.value = randNumber;
+        }
+
+        // display inputs mouse clicked or keyboard clicked function            
+        function displayInputNumber (key){
+            const keys = document.querySelector(`div[data-key='${key}']`);    
+            // disable other keys. only allow our specified data key
+            if(!keys) return;
+            
+            const getInputNumber =  keys.innerText
+
+            if(numbersCollection.length >= 4){
+                return false;
+            } else {
+                numbersCollection.push(getInputNumber);
+                showInputNumber.value = numbersCollection.join('');            
+            }
+        }
+
+        // submit function to check generated pin & input pin are matched or not
+        let tryLeft = []
+        let minusTryLeft = 3
+        function handleSubmit(){              
+            // disable submit button when fields are empty          
+            if(showGeneratedPin.value == '' || showClickedNumber.value == ''){
+                beepAudio.play()
+                return;
+            }
+            
             if(showGeneratedPin.value === showClickedNumber.value){
                 successNotify.style.display = 'block'
                 successAudio.play()
-            } else {
+            } else {                
+                minusTryLeft--;
+                console.log(minusTryLeft)
+                document.getElementById('try-count').innerText = minusTryLeft; ;
+                
+                let initialTryLeft = 1
+                tryLeft.push(initialTryLeft)
+
+                if(tryLeft.length > 2){
+                    submitBtn.disabled = true
+                    errorAudio.play()
+                }
+                
                 errorNotify.style.display = 'block'
-                errorAudio.play()
+                beepAudio.play()
+            }
+        }
+
+        // DELETE last input item
+        function deleteLastInput(){        
+            numbersCollection.pop();
+            showInputNumber.value = numbersCollection.join('')
+        }
+
+        // Clear all input numbers
+        function clearAllInputs(){    
+            numbersCollection = []
+            showInputNumber.value = numbersCollection.join('')
+        }
+
+        // handle all keyboard actions
+        window.addEventListener('keydown', e => {             
+            // if press DEL or BACKSPACE key then delete last input number
+            if(e.keyCode == 8 || e.keyCode == 46){
+                return deleteLastInput();
+            }
+
+            // if press ESC key then delete all input data
+            if(e.keyCode == 27){
+                clearAllInputs();
+            }
+            // display input number function call 
+            displayInputNumber(e.key)
+
+            // handle keyboard key
+            if (e.ctrlKey || e.metaKey) {
+                switch (String.fromCharCode(e.which).toLowerCase()) {
+                    case 'g':
+                        event.preventDefault();
+                        generatePin()
+                        break;
+                    case 's':
+                        event.preventDefault();
+                        handleSubmit()
+                        break;
+                }
             }
         });
 
-        // Delete last input number
-        const deleteSingleCharacter = document.getElementById('deleteSingleInput')
-        deleteSingleCharacter.addEventListener('click', () => {
-            numbersCollection.pop();
-            showClickedNumber.value = numbersCollection.join('')
+        // GeneratePin function call when mouse click 
+        document.querySelector('.generate-btn').addEventListener('click', ()=> {
+            generatePin();
         });
-        
-        // Clear all input numbers
-        const clearAllInputs = document.getElementById('clearAllInputs');
-        clearAllInputs.addEventListener('click', () => {
-            numbersCollection = []
-            showClickedNumber.value = numbersCollection.join('')    
+        // display number when mouse click on numbers function call
+        document.querySelectorAll('.button').forEach(mouseClickedInput => {
+            mouseClickedInput.addEventListener('click', e => {
+                displayInputNumber(e.target.innerText)
+            })
         });
 
+        // Submit numbers to check equality function call
+        submitBtn.addEventListener('click', () => {
+            handleSubmit();
+        })
+
+        // delete last input item function call
+        document.getElementById('deleteSingleInput').addEventListener('click', ()=> {
+            deleteLastInput();
+        });
+
+        // delete all input item function call
+        document.getElementById('clearAllInputs').addEventListener('click', () => {
+            clearAllInputs();
+        });
     </script>
 </body>
 </html>
